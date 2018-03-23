@@ -1,0 +1,90 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "comment",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "500"
+        },
+        {
+            "fieldName": "productLevel",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "packageLevel",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "deliveryLevel",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "deliverymanLevel",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "images",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "userid",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "shopId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "proId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "orderId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "buyTime",
+            "fieldType": "Instant",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "createdTime",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "updatedTime",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "deleted",
+            "fieldType": "Integer"
+        }
+    ],
+    "changelogDate": "20180322113406",
+    "dto": "mapstruct",
+    "service": "serviceImpl",
+    "entityTableName": "appraise",
+    "jpaMetamodelFiltering": true,
+    "pagination": "pager",
+    "microserviceName": "appraise",
+    "searchEngine": false
+}
