@@ -81,6 +81,12 @@ public class AppraiseServiceImpl implements AppraiseService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Appraise : {}", id);
-        appraiseRepository.delete(id);
+        /**
+         * 物理删除
+         */
+        Appraise appraise = appraiseRepository.findOne(id);
+        appraise.setDeleted(1);
+        appraiseRepository.save(appraise);
+        return ;
     }
 }
