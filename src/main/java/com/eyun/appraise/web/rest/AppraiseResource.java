@@ -1,23 +1,12 @@
 package com.eyun.appraise.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
-import com.eyun.appraise.service.AppraiseService;
-import com.eyun.appraise.service.UaaService;
-import com.eyun.appraise.web.rest.errors.BadRequestAlertException;
-import com.eyun.appraise.web.rest.util.HeaderUtil;
-import com.eyun.appraise.web.rest.util.PaginationUtil;
-import com.eyun.appraise.service.dto.AppraiseDTO;
-import com.eyun.appraise.service.dto.ApraDTO;
-import com.eyun.appraise.service.dto.UserDTO;
-import com.eyun.appraise.service.dto.AppraiseCriteria;
-import com.eyun.appraise.domain.Appraise;
-import com.eyun.appraise.service.AppraiseQueryService;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
-import io.github.jhipster.service.filter.BooleanFilter;
-import io.github.jhipster.service.filter.IntegerFilter;
-import io.github.jhipster.service.filter.LongFilter;
-import io.github.jhipster.web.util.ResponseUtil;
-import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +20,31 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import com.codahale.metrics.annotation.Timed;
+import com.eyun.appraise.service.AppraiseQueryService;
+import com.eyun.appraise.service.AppraiseService;
+import com.eyun.appraise.service.UaaService;
+import com.eyun.appraise.service.dto.AppraiseCriteria;
+import com.eyun.appraise.service.dto.AppraiseDTO;
+import com.eyun.appraise.service.dto.ApraDTO;
+import com.eyun.appraise.service.dto.UserDTO;
+import com.eyun.appraise.web.rest.errors.BadRequestAlertException;
+import com.eyun.appraise.web.rest.util.HeaderUtil;
+import com.eyun.appraise.web.rest.util.PaginationUtil;
+
+import io.github.jhipster.service.filter.IntegerFilter;
+import io.github.jhipster.service.filter.LongFilter;
+import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * REST controller for managing Appraise.
@@ -73,28 +79,32 @@ public class AppraiseResource {
     @PostMapping("/appraises")
     @Timed
     public ResponseEntity<AppraiseDTO> createAppraise(@Valid @RequestBody AppraiseDTO appraiseDTO) throws URISyntaxException {
-    	// 判断订单 提交过后 通知
         log.debug("REST request to save Appraise : {}", appraiseDTO);
         if (appraiseDTO.getId() != null) {
             throw new BadRequestAlertException("A new appraise cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        
-      	UserDTO userDTO;
-      	 try {
-      		 userDTO=uaaService.getAccount();	
-    			  } catch (Exception e) {
-    				  throw new BadRequestAlertException("获取当前用户失败", "", "");
-    		 }
-      	appraiseDTO.setUserid(userDTO.getId());
-      	appraiseDTO.setDeleted(0);
-      	appraiseDTO.setCreatedTime(Instant.now());
-      	appraiseDTO.setUpdatedTime(Instant.now());
         AppraiseDTO result = appraiseService.save(appraiseDTO);
-        return ResponseEntity.created(new URI("/api/appraises/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return new ResponseEntity<>(result,HttpStatus.OK);
     }
 
+    @ApiOperation("提交评论")
+    @PostMapping("/createAppraiseByUser")
+    public ResponseEntity<AppraiseDTO> createAppraiseByUser(@RequestBody AppraiseDTO appraiseDTO){
+    	UserDTO userDTO;
+     	 try {
+     		 userDTO=uaaService.getAccount();	
+   			  } catch (Exception e) {
+   				  throw new BadRequestAlertException("获取当前用户失败", "", "");
+   		 }
+     	appraiseDTO.setUserid(userDTO.getId());
+     	appraiseDTO.setDeleted(0);
+     	appraiseDTO.setCreatedTime(Instant.now());
+     	appraiseDTO.setUpdatedTime(Instant.now());
+       AppraiseDTO result = appraiseService.save(appraiseDTO);
+		return new ResponseEntity<>(result,HttpStatus.OK);
+    }
+    
+    
     /**
      * PUT  /appraises : Updates an existing appraise.
      *
@@ -161,7 +171,7 @@ public class AppraiseResource {
     }
     
     @ApiOperation("根据商品查评论")
-    @PostMapping("/appraises")
+    @PostMapping("/appraisesByProId")
     public ResponseEntity<List<AppraiseDTO>> findByProId(@RequestBody ApraDTO apraDTO){
 		Pageable pageable = new PageRequest(apraDTO.getPage(),apraDTO.getSize(),new Sort(new Order(Direction.DESC,"createdTime")));
 		//productID
